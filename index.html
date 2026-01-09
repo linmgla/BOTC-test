@@ -416,6 +416,12 @@
             text-overflow: ellipsis;
         }
         
+        /* 修復：活動按鈕文字顏色保持在暗色主題下也是深色 */
+        .dark-theme .event:not(.hidden) .event-time,
+        .dark-theme .event:not(.hidden) .event-title {
+            color: #333; /* 保持深色文字，避免反白 */
+        }
+        
         .empty-cell {
             background: #f8f9fa;
             color: #adb5bd;
@@ -645,7 +651,7 @@
             cursor: pointer;
             transition: all 0.2s ease;
             font-size: 14px;
-            color: white; /* 新增：按鈕文字改為白色 */
+            color: white; /* 按鈕文字改為白色 */
         }
         
         .modal-btn:hover {
@@ -846,28 +852,34 @@
         // 全局變量
         let eventData = [];
         
-        // 地點顏色配置
+        // 地點顏色配置 - 修復：確保在暗色主題下有正確的背景色
         const locationConfig = {
             "101鐘樓": {
                 color: "#4dabf7",
                 bgColor: "#e7f5ff",
                 borderColor: "#4dabf7",
                 hiddenColor: "#f0f8ff",
-                hiddenBorder: "#a5d8ff"
+                hiddenBorder: "#a5d8ff",
+                darkBgColor: "#1a365d",  // 暗色主題下的背景色
+                darkHiddenColor: "#0f2b4d" // 暗色主題下的隱藏背景色
             },
             "歪常研究院": {
                 color: "#da77f2",
                 bgColor: "#f8f0fc",
                 borderColor: "#da77f2",
                 hiddenColor: "#fdf2ff",
-                hiddenBorder: "#e599f7"
+                hiddenBorder: "#e599f7",
+                darkBgColor: "#3a1a4a",  // 暗色主題下的背景色
+                darkHiddenColor: "#2a0f3a" // 暗色主題下的隱藏背景色
             },
             "小怪寶家長會": {
                 color: "#3a8c4a",
                 bgColor: "#e6f7e9",
                 borderColor: "#3a8c4a",
                 hiddenColor: "#f0f9f2",
-                hiddenBorder: "#a3d9b1"
+                hiddenBorder: "#a3d9b1",
+                darkBgColor: "#1a3a1a",  // 暗色主題下的背景色
+                darkHiddenColor: "#0f2a0f" // 暗色主題下的隱藏背景色
             }
         };
 
@@ -889,6 +901,11 @@
                 themeToggle.textContent = '☀️ 切換亮色主題';
                 localStorage.setItem('theme', 'dark');
             }
+            
+            // 重新生成篩選按鈕和日曆，確保套用正確的主題顏色
+            generateFilterButtons();
+            generateCalendar();
+            updateStatusBar();
         }
         
         // 載入保存的主題
@@ -1275,7 +1292,7 @@
             modal.classList.add('active');
         }
         
-        // 生成篩選按鈕
+        // 生成篩選按鈕 - 修復：避免背景色變黃色的問題
         function generateFilterButtons() {
             const filtersContainer = document.getElementById('filters');
             
@@ -1295,14 +1312,20 @@
                 const isDarkTheme = document.body.classList.contains('dark-theme');
                 
                 if (isDarkTheme) {
-                    button.style.backgroundColor = isHidden ? '#333' : config.bgColor.replace('ff', '33');
-                    button.style.color = isHidden ? '#777' : config.color;
-                    button.style.border = `2px solid ${isHidden ? '#555' : config.borderColor}`;
+                    // 使用專門為暗色主題定義的背景色
+                    button.style.backgroundColor = isHidden ? config.darkHiddenColor : config.darkBgColor;
+                    button.style.color = config.color; // 保持原來的文字顏色
+                    button.style.border = `2px solid ${config.borderColor}`;
                 } else {
+                    // 亮色主題使用原來的顏色
                     button.style.backgroundColor = isHidden ? config.hiddenColor : config.bgColor;
                     button.style.color = isHidden ? '#adb5bd' : config.color;
                     button.style.border = `2px solid ${isHidden ? config.hiddenBorder : config.borderColor}`;
                 }
+                
+                // 修復：移除可能導致問題的內聯樣式殘留
+                button.style.removeProperty('background');
+                button.style.removeProperty('background-color');
                 
                 button.addEventListener('click', () => toggleLocation(location));
                 
@@ -1362,7 +1385,7 @@
             }
         }
         
-        // 生成日曆
+        // 生成日曆 - 修復：活動按鈕文字不要反白
         function generateCalendar() {
             const calendarGrid = document.getElementById('calendarGrid');
             const noEventsMessage = document.getElementById('noEvents');
@@ -1432,9 +1455,11 @@
                         const isDarkTheme = document.body.classList.contains('dark-theme');
                         
                         if (isDarkTheme) {
-                            eventDiv.style.backgroundColor = isHidden ? '#333' : config.bgColor.replace('ff', '33');
-                            eventDiv.style.borderLeftColor = isHidden ? '#555' : config.borderColor;
-                            eventDiv.style.color = isHidden ? '#777' : '#e9ecef';
+                            // 使用專門為暗色主題定義的背景色
+                            eventDiv.style.backgroundColor = isHidden ? config.darkHiddenColor : config.darkBgColor;
+                            eventDiv.style.borderLeftColor = config.borderColor;
+                            // 文字顏色保持深色，避免反白
+                            eventDiv.style.color = '#333';
                         } else {
                             eventDiv.style.backgroundColor = isHidden ? config.hiddenColor : config.bgColor;
                             eventDiv.style.borderLeftColor = isHidden ? config.hiddenBorder : config.borderColor;
@@ -1458,6 +1483,12 @@
                         const titleSpan = document.createElement('span');
                         titleSpan.className = 'event-title';
                         titleSpan.textContent = event.script;
+                        
+                        // 確保文字顏色在暗色主題下也是深色
+                        if (isDarkTheme && !isHidden) {
+                            timeSpan.style.color = '#333';
+                            titleSpan.style.color = '#333';
+                        }
                         
                         eventDiv.appendChild(timeSpan);
                         eventDiv.appendChild(titleSpan);
