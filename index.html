@@ -147,13 +147,17 @@
             margin: 0;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
             color: var(--header-text);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         
         .by-text {
-            font-size: 1.1rem;
+            font-size: 1.3rem;
             font-weight: normal;
             color: var(--header-secondary-text);
-            margin-top: 5px;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
         }
         
@@ -347,7 +351,6 @@
         
         .event:hover {
             transform: translateX(3px);
-            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
         }
         
         .event-time {
@@ -373,7 +376,6 @@
         
         .event.no-event:hover {
             transform: translateX(3px);
-            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
             background-color: var(--no-event-hover-bg);
         }
         
@@ -623,10 +625,12 @@
             
             h1 {
                 font-size: 2rem;
+                flex-direction: column;
+                gap: 5px;
             }
             
             .by-text {
-                font-size: 0.9rem;
+                font-size: 1.1rem;
             }
             
             .status-bar {
@@ -650,7 +654,7 @@
             }
             
             .by-text {
-                font-size: 0.8rem;
+                font-size: 1rem;
             }
             
             .view-grid .day-cell {
@@ -678,8 +682,10 @@
                          onerror="this.src='https://raw.githubusercontent.com/linmgla/BOTC/main/logo.png'; this.onerror=function(){this.src='https://via.placeholder.com/60?text=BOTC'}">
                 </div>
                 <div class="title-container">
-                    <h1>血染鐘樓活動行事曆</h1>
-                    <span class="by-text">by 曉風</span>
+                    <h1>
+                        <span>血染鐘樓活動行事曆</span>
+                        <span class="by-text">by 曉風</span>
+                    </h1>
                 </div>
             </div>
             <div class="header-controls">
