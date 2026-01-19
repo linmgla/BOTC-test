@@ -35,6 +35,7 @@
             --empty-cell-bg: #1a1a1a;
             --no-event-bg: #2a2a2a;
             --no-event-text: #666;
+            --no-event-hover-bg: #333;
             --tooltip-bg: #2a2a2a;
             --tooltip-text: #e0e0e0;
         }
@@ -69,6 +70,7 @@
             --empty-cell-bg: #f8f9fa;
             --no-event-bg: #f1f3f5;
             --no-event-text: #adb5bd;
+            --no-event-hover-bg: #e9ecef;
             --tooltip-bg: #333;
             --tooltip-text: #ffffff;
         }
@@ -370,8 +372,9 @@
         }
         
         .event.no-event:hover {
-            transform: none;
-            box-shadow: none;
+            transform: translateX(3px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+            background-color: var(--no-event-hover-bg);
         }
         
         /* 過期活動樣式 */
@@ -664,28 +667,6 @@
                 font-size: 13px;
             }
         }
-        
-        /* 儲存設定提示 */
-        .settings-saved {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #4dabf7;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            z-index: 1000;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            pointer-events: none;
-        }
-        
-        .settings-saved.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
     </style>
 </head>
 <body class="view-grid">
@@ -706,7 +687,6 @@
                 <button class="btn-ctrl" id="listBtn">📱 清單模式</button>
                 <button class="btn-ctrl" id="refreshBtn">🔄 重新整理</button>
                 <button class="btn-ctrl" id="themeToggle">☀️ 切換亮色主題</button>
-                <button class="btn-ctrl" id="resetSettingsBtn">🗑️ 重設設定</button>
             </div>
         </header>
         
@@ -778,11 +758,6 @@
     </div>
 
     <div id="tooltip" class="custom-tooltip"></div>
-    
-    <!-- 設定儲存提示 -->
-    <div id="settingsSaved" class="settings-saved">
-        設定已儲存！下次開啟時將自動載入您的偏好設定。
-    </div>
 
     <script>
         const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT8GSdmGL5ggYr0ADz2fwltf9mBgv-77ggRneKQOBnebWG9HGOwsqpbhn5wpYgrezLHUNwIxi1ACm5r/pub?output=csv";
@@ -793,11 +768,6 @@
         
         // 使用者設定
         const USER_SETTINGS_KEY = 'botc_calendar_settings';
-        const DEFAULT_SETTINGS = {
-            theme: 'dark', // 'dark' 或 'light'
-            viewMode: 'grid', // 'grid' 或 'list'
-            hiddenLocations: [] // 隱藏的地點
-        };
         
         const locConfig = {
             "101鐘樓": { 
@@ -832,7 +802,6 @@
             
             try {
                 localStorage.setItem(USER_SETTINGS_KEY, JSON.stringify(settings));
-                showSettingsSavedMessage();
             } catch (e) {
                 console.error('無法儲存設定到 localStorage:', e);
             }
@@ -881,45 +850,6 @@
             }
             
             return false;
-        }
-        
-        // 重設為預設設定
-        function resetSettings() {
-            try {
-                localStorage.removeItem(USER_SETTINGS_KEY);
-                
-                // 重設為預設值
-                isDarkTheme = true;
-                hiddenLocs = new Set();
-                
-                // 套用暗色主題
-                document.body.classList.remove('light-theme');
-                document.getElementById('themeToggle').textContent = "☀️ 切換亮色主題";
-                
-                // 套用網格模式
-                document.body.classList.remove('view-list');
-                document.body.classList.add('view-grid');
-                document.getElementById('gridBtn').classList.add('active');
-                document.getElementById('listBtn').classList.remove('active');
-                
-                // 重新渲染
-                render();
-                
-                showSettingsSavedMessage('設定已重設為預設值！');
-            } catch (e) {
-                console.error('無法重設設定:', e);
-            }
-        }
-        
-        // 顯示設定已儲存訊息
-        function showSettingsSavedMessage(message = '設定已儲存！下次開啟時將自動載入您的偏好設定。') {
-            const messageEl = document.getElementById('settingsSaved');
-            messageEl.textContent = message;
-            messageEl.classList.add('show');
-            
-            setTimeout(() => {
-                messageEl.classList.remove('show');
-            }, 3000);
         }
 
         // 主題切換函數 - 使用CSS變數，不需要重新渲染
@@ -1351,9 +1281,6 @@
         
         // 主題切換按鈕事件
         document.getElementById('themeToggle').onclick = toggleTheme;
-        
-        // 重設設定按鈕事件
-        document.getElementById('resetSettingsBtn').onclick = resetSettings;
 
         // 初始化
         function init() {
