@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>血染鐘樓活動行事曆 by 曉風 - 2026年5月</title>
+    <title>血染鐘樓活動行事曆 by 曉風 - 2026年6月</title>
     <style>
         :root {
             /* 暗色主題變數 */
@@ -599,7 +599,7 @@
                 <div class="title-container">
                     <h1>
                         <span>血染鐘樓活動行事曆</span>
-                        <span class="by-text">by 曉風 (2026年5月)</span>
+                        <span class="by-text">by 曉風 (2026年6月)</span>
                     </h1>
                 </div>
             </div>
@@ -659,11 +659,15 @@
         let isDarkTheme = true;
         const USER_SETTINGS_KEY = 'botc_calendar_settings';
         
-        // 僅保留兩個地點，已刪除「小怪寶家長會」
+        // 僅保留兩個地點，已完全移除「小怪寶家長會」
         const locConfig = {
             "101鐘樓": { darkBg: "#1e3a5f", lightBg: "#e7f5ff", color: "#4dabf7", borderColor: "#4dabf7" },
             "歪常研究所": { darkBg: "#3d1e5f", lightBg: "#f8f0fc", color: "#da77f2", borderColor: "#da77f2" }
         };
+        
+        // 顯示的年份月份 (2026年6月)
+        const DISPLAY_YEAR = 2026;
+        const DISPLAY_MONTH = 6;   // 6月
         
         function cleanHiddenLocs() {
             if (hiddenLocs.has("小怪寶家長會")) hiddenLocs.delete("小怪寶家長會");
@@ -799,7 +803,8 @@
                     const [m, d] = dateStr.split('/');
                     if (!m || !d) continue;
                     const loc = row['地點'];
-                    if (loc === '小怪寶家長會') continue;  // 完全過濾
+                    // 完全過濾小怪寶家長會
+                    if (loc === '小怪寶家長會') continue;
                     if (!locConfig[loc]) continue;
                     raw.push({
                         date: `2026-${m.padStart(2,'0')}-${d.padStart(2,'0')}`,
@@ -839,12 +844,13 @@
             
             const grid = document.getElementById('calendarGrid');
             grid.innerHTML = '';
-            const y = 2026, m = 5;
-            const days = new Date(y, m, 0).getDate();
+            const y = DISPLAY_YEAR, m = DISPLAY_MONTH;
+            const days = new Date(y, m, 0).getDate();  // 6月有30天
             const today = new Date().toISOString().split('T')[0];
             const isListMode = document.body.classList.contains('view-list');
             
             if (!isListMode) {
+                // 加入星期標頭
                 ['日', '一', '二', '三', '四', '五', '六'].forEach(day => {
                     const wd = document.createElement('div');
                     wd.className = 'weekday-cell';
@@ -929,9 +935,10 @@
                 grid.appendChild(cell);
             });
             
-            // 網格模式下補足 5/31 之後的空白儲存格（後置空白），背景與 body 完全一致（已透過 .empty-cell 樣式保證）
+            // 網格模式下補足月份後方空白儲存格（6月30日之後的空白），背景與 body 完全一致
             if (!isListMode) {
-                const totalCells = new Date(y, m-1, 1).getDay() + days;
+                const firstWeekday = new Date(y, m-1, 1).getDay();
+                const totalCells = firstWeekday + days;
                 const remainder = totalCells % 7;
                 const trailing = remainder === 0 ? 0 : 7 - remainder;
                 for (let i = 0; i < trailing; i++) {
@@ -941,7 +948,7 @@
                     grid.appendChild(emptyAfter);
                 }
             }
-            document.getElementById('countText').textContent = `共顯示 ${total} 個活動 (2026年5月)`;
+            document.getElementById('countText').textContent = `共顯示 ${total} 個活動 (2026年6月)`;
         }
         
         function openModal(ev, dayInfo) {
